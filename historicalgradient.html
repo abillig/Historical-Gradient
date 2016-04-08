@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Map</title>
+<script src='https://api.tiles.mapbox.com/mapbox.js/v2.2.0/mapbox.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox.js/v2.2.0/mapbox.css' rel='stylesheet' />
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; height: 100%;}
+.info {
+    background: rgba(245, 245, 245, .6);
+    position:absolute;
+    width:160px;
+    top:10px;
+    right:10px;
+    border-radius:2px;
+    font-family: garamond;
+    }
+    .info .item {
+      display:block;
+      border-bottom:1px solid #eee;
+      padding:10px;
+      text-decoration:none;
+      color: black;
+      font-weight: bold;
+      }
+      .info .item small { color:#888; }
+      .info .item:hover,
+      .info .item.active { background:#f8f8f8; }
+      .info .item:last-child { border-bottom:none; }
+
+.ui-opacity {
+ background: rgba(245, 245, 245, .6);
+  position:absolute;
+  left:10px;
+  top:170px;
+  height:200px;
+  width:28px;
+  border:1px solid rgba(0,0,0,0.4);
+  border-radius:3px;
+  z-index:1000;
+  }
+.ui-opacity .handle {
+  position:absolute;
+  background:#404040;
+  left:0;
+  top:20px;
+  width:28px;
+  height:4px;
+  border-radius:1px;
+  cursor:pointer;
+  cursor:ns-resize;
+  }
+  .ui-opacity .handle:hover {
+    background:#303030;
+    }
+
+#year1 {
+  background: rgba(245, 245, 245, .6);
+  position:absolute;
+  left:10px;
+  top:150px;
+  height: 0px;
+  color: black;
+  font-family: garamond;
+  font-weight: bold;
+  border-radius: 5px;
+}
+
+#year2 {
+  background: rgba(245, 245, 245, .6);
+  position:absolute;
+  left:10px;
+  top:355px;
+  height: 0px;
+  color: black;
+  font-family: garamond;
+  font-weight: bold;
+  border-radius: 5px;
+}
+</style>
+</head>
+<body>
+
+
+<style>
+.leaflet-popup-content {
+  font-family: garamond;
+  text-align: center;
+    font-weight: bold;
+  background: none;
+  width: 300%;
+  }
+  img {
+  width:100%;
+  height: 100%;
+  }
+
+.leaflet-popup-content-wrapper {
+  background-color:rgba(245, 245, 245, .5);
+  width: 100%;
+}
+
+</style>
+<div id='map'></div>
+<div id='info' class='info'></div>
+<div id='control' class='ui-opacity'>
+  <div id='handle' class='handle'></div>
+</div>
+<div id='year1'>
+  1896
+</div>
+<div id='year2'>
+  <p>2016</p>
+</div>
+<script>
+
+
+L.mapbox.accessToken = 'pk.eyJ1IjoiYXZyYW0iLCJhIjoiVGNCQ0lxdyJ9.3sSRbYNqqB3PhNnF0f09aw';
+var map = L.mapbox.map('map', 'mapbox.streets')
+    .setView([40.693719851820724, -73.98244857788086], 14);
+
+var handle = document.getElementById('handle'),
+    start = false,
+    startTop;
+
+var oldMap = L.tileLayer('http://maps.nypl.org/warper/maps/tile/8590/{z}/{x}/{y}.png').addTo(map);
+
+  var layers = {
+      1870: L.mapbox.tileLayer('  '),
+      2016: L.mapbox.tileLayer('mapbox.streets')
+  };
+
+var Ada = L.marker([40.726441, -73.998912]).bindPopup("Ada");
+
+var overlayMaps = {
+  Houston: Ada
+};
+
+
+
+function showPopup(feature, layer) {
+  var key, val;
+  var content = [];
+  for (key in feature.properties) {
+    val = feature.properties[key];
+    if (key == "Image") {
+      val = '<img src="' + val + '"  height="150" />';
+    }
+    else if (key == "Title"){
+      val = null;
+    }
+    content.push(val);
+  }
+  layer.bindPopup(content.join(" "));
+}
+
+
+var myLayer = L.mapbox.featureLayer().addTo(map);
+
+myLayer = L.geoJson({
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Arsenic Wafers",
+        "Address": "143 Montague St",
+        "Image": "BKads/arsenicwafers.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.993546,
+          40.694832
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Drink or Die",
+        "Address": "69 Fulton St",
+        "Image": "BKads/Drink_or_Die.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.989221,
+          40.692198
+        ]
+      }
+    },
+      {
+      "type": "Feature",
+      "properties": {
+        "Title": "1857 Bed Bugs",
+        "Address": "175 Fulton St",
+        "Image": "BKads/1857bedbugs.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9889019727706,
+          40.692072561631
+        ]
+      }
+    },
+          {
+      "type": "Feature",
+      "properties": {
+        "Title": "Cocaine-Free Dentistry",
+        "Address": "Fulton and Hoyt",
+        "Image": "BKads/cocaine_dentistry.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9851522445678,
+          40.6905635267283
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Electric Hair Restoration",
+        "Address": "7 Clinton St",
+        "Image": "BKads/Electric_Hair_Restoration.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.991407,
+          40.696356
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Wool Bike Suit",
+        "Address": "450 Dean St",
+        "Image": "BKads/Wool_Bike_Suit.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.976258,
+          40.681707
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Biking Boots",
+        "Address": "408 Fulton St",
+        "Image": "BKads/Biking_Boots.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.986443,
+          40.69073
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Turkish Baths for Delivery",
+        "Address": "112 Dean St",
+        "Image": "BKads/Turkish_Baths_For_Delivery.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.988876,
+          40.686629
+        ]
+      }
+    },
+        {
+      "type": "Feature",
+      "properties": {
+        "Title": "Oysters!!!",
+        "Address": "31 James St",
+        "Image": "BKads/Oysters!10.26.1841.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.9921152591705,
+          40.6993813386661
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Swastika Ceilings",
+        "Address": "283 Greene Ave",
+        "Image": "BKads/Swastika_Ceilings.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.960373,
+          40.687595
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Buy A Horse",
+        "Address": "229 Washington St",
+        "Image": "BKads/Buy_A_Horse.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.98974419,
+          40.70082104
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "Title": "Stinky Licorice",
+        "Address": "Plymouth St",
+        "Image": "BKads/Stinky_Licorice.png"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -73.98363948,
+          40.70362714
+        ]
+      }
+    }
+  ]
+},
+{onEachFeature: showPopup}).addTo(map);
+
+myLayer.eachLayer(function(marker) {
+                marker.setIcon(L.mapbox.marker.icon({
+                    'marker-color': '#000',
+                    'marker-size': 'medium'
+                }))}).addTo(map);
+
+var info = document.getElementById('info');
+
+// Iterate through each feature layer item, build a
+// marker menu item and enable a click event that pans to + opens
+// a marker that's associated to the marker item.
+myLayer.eachLayer(function(bob) {
+  var link = info.appendChild(document.createElement('a'));
+  link.className = 'item';
+  link.href = '#';
+
+
+  // Populate content from each markers object.
+  link.innerHTML = bob.feature.properties.Title +
+    '<br /><small>';
+   link.onclick = function() {
+    if (/active/.test(this.className)) {} 
+      else {
+      var siblings = info.getElementsByTagName('a');
+      for (var i = 0; i < siblings.length; i++) {
+        siblings[i].className = siblings[i].className
+          .replace(/active/, '').replace(/\s\s*$/, '');
+      };
+      this.className += ' active';
+
+      // When a menu item is clicked, animate the map to center
+      // its associated marker and open its popup.
+      map.panTo(bob.getLatLng());
+      bob.openPopup();
+    }
+    return false;
+  }; });
+
+
+map.scrollWheelZoom.disable();
+
+document.onmousemove = function(e) {
+    if (!start) return;
+    // Adjust control.
+    handle.style.top = Math.max(-5, Math.min(195, startTop + parseInt(e.clientY, 10) - start)) + 'px';
+    // Adjust opacity.
+    oldMap.setOpacity(1 - (handle.offsetTop / 200));
+};
+
+handle.onmousedown = function(e) {
+    // Record initial positions.
+    start = parseInt(e.clientY, 10);
+    startTop = handle.offsetTop - 5;
+    return false;
+};
+
+document.onmouseup = function(e) {
+    start = null;
+};
+
+
+
+</script>
+</body>
+</html>
